@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Homework 1 - Random Walk</title>
+  <link rel="stylesheet" href="../style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <main>
+    <a class="back-btn" href="../index.html">← Torna alla Home</a>
+
+    <h1>🚶 Homework 1 — Random Walk</h1>
+    <p class="subtitle">Legge dei Grandi Numeri (LLN) — simulazione interattiva</p>
+
+    <h2>🧮 Teoria</h2>
+    <p>
+      Un random walk semplice è la somma di passi indipendenti, ciascuno +1 (successo)
+      con probabilità p oppure 0 (fallimento). La frequenza relativa dei successi dopo
+      n prove è:
+    </p>
+    <div class="formula">
+      fₙ = Sₙ / n &nbsp;→&nbsp; p &nbsp;&nbsp;(quando n → ∞)
+    </div>
+    <p>
+      Questa è la <strong>Legge dei Grandi Numeri</strong>: aumentando il numero di prove,
+      la frequenza osservata converge verso la probabilità teorica p.
+    </p>
+
+    <h2>🎲 Simulazione</h2>
+    <p>Imposta i parametri e osserva più traiettorie casuali convergere verso p.</p>
+
+    <div class="sim-box">
+      <label for="pRange">Probabilità di successo p: <span id="pVal">0.50</span></label>
+      <input type="range" id="pRange" min="0" max="1" step="0.01" value="0.5">
+
+      <label for="stepsRange" style="margin-top:12px;">Numero di passi: <span id="stepsVal">100</span></label>
+      <input type="range" id="stepsRange" min="10" max="500" step="10" value="100">
+
+      <label for="walksRange" style="margin-top:12px;">Numero di traiettorie: <span id="walksVal">10</span></label>
+      <input type="range" id="walksRange" min="1" max="50" step="1" value="10">
+
+      <br><br>
+      <button id="runBtn">▶ Genera simulazione</button>
+
+      <canvas id="rwChart" height="280" style="margin-top:16px;"></canvas>
+    </div>
+
+    <h2>🧠 Cosa osservare</h2>
+    <ul>
+      <li>Con poche traiettorie e pochi passi, i risultati sono molto variabili.</li>
+      <li>Aumentando i passi, ogni traiettoria tende a stabilizzarsi vicino a p.</li>
+      <li>Aumentando il numero di traiettorie, si vede meglio la tendenza comune.</li>
+    </ul>
+
+    <a class="back-btn" href="../index.html">← Torna alla Home</a>
+  </main>
+
+  <footer class="site-footer">
+    © 2026 Alessandro Bianco — Homework 1
+  </footer>
+
+  <script>
+    const pRange = document.getElementById('pRange');
+    const stepsRange = document.getElementById('stepsRange');
+    const walksRange = document.getElementById('walksRange');
+    const pVal = document.getElementById('pVal');
+    const stepsVal = document.getElementById('stepsVal');
+    const walksVal = document.getElementById('walksVal');
+    const runBtn = document.getElementById('runBtn');
+
+    let chart = null;
+
+    pRange.oninput = () => pVal.textContent = parseFloat(pRange.value).toFixed(2);
+    stepsRange.oninput = () => stepsVal.textContent = stepsRange.value;
+    walksRange.oninput = () => walksVal.textContent = walksRange.value;
+
+    function randomColor(i) {
+      const hue = (i * 47) % 360;
+      return `hsl(${hue}, 65%, 55%)`;
+    }
+
+    function runSimulation() {
+      const p = parseFloat(pRange.value);
+      const steps = parseInt(stepsRange.value);
+      const nWalks = parseInt(walksRange.value);
+
+      const labels = Array.from({ length: steps + 1 }, (_, i) => i);
+      const datasets = [];
+
+      for (let w = 0; w < nWalks; w++) {
+        let successes = 0;
+        const data = [0];
+        for (let i = 1; i <= steps; i++) {
+          if (Math.random() < p) successes++;
+          data.push(successes / i);
+        }
+        datasets.push({
+          label: `Traiettoria ${w + 1}`,
+          data: data,
+          borderColor: randomColor(w),
+          borderWidth: 1.5,
+          pointRadius: 0,
+          fill: false
+        });
+      }
+
+      // Linea orizzontale che indica p
+      datasets.push({
+        label: `p = ${p}`,
+        data: labels.map(() => p),
+        borderColor: '#e53935',
+        borderDash: [6, 4],
+        borderWidth: 2,
+        pointRadius: 0,
+        fill: false
+      });
+
+      if (chart) chart.destroy();
+      chart = new Chart(document.getElementById('rwChart'), {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { title: { display: true, text: 'Numero di prove (n)' } },
+            y: { title: { display: true, text: 'Frequenza relativa fₙ' }, min: 0, max: 1 }
+          }
+        }
+      });
+    }
+
+    runBtn.addEventListener('click', runSimulation);
+    runSimulation(); // esegui subito al caricamento
+  </script>
+
+</body>
+</html>
