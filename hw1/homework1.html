@@ -6,8 +6,8 @@
   <title>Homework 1 - Elliptic Curve Scalar Multiplication &amp; Statistical Exploration</title>
   <link rel="stylesheet" href="../style.css">
   <link rel="icon" href="../statistics.ico">
-  <!-- External Chart library for statistical plots -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="homework1.js"></script>
 </head>
 <body>
 
@@ -24,19 +24,19 @@
       <h2>1. Theoretical Background &amp; Problem Statement</h2>
       <p>
         In modern blockchain architectures such as <strong>Ethereum</strong>, public-key cryptography is leveraged to generate account addresses and verify transaction signatures. 
-        Ethereum utilizes the elliptic curve <code>secp256k1</code> over a massive prime field. The core mechanism mapping a <strong>Private Key ($k$)</strong> to a <strong>Public Key ($Q$)</strong> is <em>Elliptic-Curve Scalar Multiplication</em>:
+        Ethereum utilizes the elliptic curve <code>secp256k1</code> over a massive prime field. The core mechanism mapping a <strong>Private Key (k)</strong> to a <strong>Public Key (Q)</strong> is <em>Elliptic-Curve Scalar Multiplication</em>:
       </p>
       <div class="math-block">
         Q = k · G = G + G + ... + G  (k times)
       </div>
       <p>
-        This operation exhibits <strong>one-way function properties</strong>: computing $Q$ given $k$ and base point $G$ is computationally straightforward (using algorithms like <em>Double-and-Add</em> in $O(\log k)$ time), whereas deriving $k$ from $Q$ and $G$ requires solving the <strong>Elliptic Curve Discrete Logarithm Problem (ECDLP)</strong>, which is computationally intractable for sufficiently large fields.
+        This operation exhibits <strong>one-way function properties</strong>: computing <strong>Q</strong> given <strong>k</strong> and base point <strong>G</strong> is computationally straightforward (using algorithms like <em>Double-and-Add</em> in O(log k) time), whereas deriving <strong>k</strong> from <strong>Q</strong> and <strong>G</strong> requires solving the <strong>Elliptic Curve Discrete Logarithm Problem (ECDLP)</strong>, which is computationally intractable for sufficiently large fields.
       </p>
       <p>
         <strong>Objective:</strong> To understand the fundamental mechanics of scalar multiplication without the overhead of 256-bit arithmetic, we study a finite field <em>Toy Curve</em>:
       </p>
       <div class="math-block">
-        y² ≡ x³ + 7  (mod 17)
+        y<sup>2</sup> &equiv; x<sup>3</sup> + 7  (mod 17)
       </div>
     </section>
 
@@ -44,31 +44,31 @@
     <section class="section-box">
       <h2>2. Mathematical Derivation of Point Addition</h2>
       <p>
-        Over a prime Galois Field $\mathbb{F}_p$ (with $p=17$), point operations on $y^2 \equiv x^3 + a\cdot x + b \pmod p$ ($a=0, b=7$) are defined algebraically:
+        Over a prime Galois Field F<sub>p</sub> (with p = 17), point operations on y<sup>2</sup> &equiv; x<sup>3</sup> + a·x + b (mod p) with a = 0, b = 7 are defined algebraically:
       </p>
       <ul>
-        <li><strong>Point Addition ($P \neq R$):</strong> Given $P=(x_1, y_1)$ and $R=(x_2, y_2)$, the slope $m$ and resulting point $S = P + R = (x_3, y_3)$ are:
+        <li><strong>Point Addition (P &ne; R):</strong> Given P = (x<sub>1</sub>, y<sub>1</sub>) and R = (x<sub>2</sub>, y<sub>2</sub>), the slope m and resulting point S = P + R = (x<sub>3</sub>, y<sub>3</sub>) are:
           <div class="math-block">
-            m ≡ (y₂ - y₁) · (x₂ - x₁)⁻¹ (mod p)<br>
-            x₃ ≡ m² - x₁ - x₂ (mod p)<br>
-            y₃ ≡ m · (x₁ - x₃) - y₁ (mod p)
+            m &equiv; (y<sub>2</sub> - y<sub>1</sub>) · (x<sub>2</sub> - x<sub>1</sub>)<sup>-1</sup> (mod p)<br>
+            x<sub>3</sub> &equiv; m<sup>2</sup> - x<sub>1</sub> - x<sub>2</sub> (mod p)<br>
+            y<sub>3</sub> &equiv; m · (x<sub>1</sub> - x<sub>3</sub>) - y<sub>1</sub> (mod p)
           </div>
         </li>
-        <li><strong>Point Doubling ($P = R$):</strong> For $2P = (x_3, y_3)$:
+        <li><strong>Point Doubling (P = R):</strong> For 2P = (x<sub>3</sub>, y<sub>3</sub>):
           <div class="math-block">
-            m ≡ (3·x₁² + a) · (2·y₁)⁻¹ (mod p)<br>
-            x₃ ≡ m² - 2·x₁ (mod p)<br>
-            y₃ ≡ m · (x₁ - x₃) - y₁ (mod p)
+            m &equiv; (3·x<sub>1</sub><sup>2</sup> + a) · (2·y<sub>1</sub>)<sup>-1</sup> (mod p)<br>
+            x<sub>3</sub> &equiv; m<sup>2</sup> - 2·x<sub>1</sub> (mod p)<br>
+            y<sub>3</sub> &equiv; m · (x<sub>1</sub> - x<sub>3</sub>) - y<sub>1</sub> (mod p)
           </div>
         </li>
       </ul>
-      <p><em>Note: All divisions represent multiplication by the modular multiplicative inverse modulo $p=17$.</em></p>
+      <p><em>Note: All divisions represent multiplication by the modular multiplicative inverse modulo p = 17.</em></p>
     </section>
 
     <!-- Section 3: Interactive Application -->
     <section class="section-box">
       <h2>3. Interactive Toy ECC Scalar Multiplication</h2>
-      <p>Compute $Q = k \cdot G$ step-by-step and visualize the points on the finite grid $\mathbb{F}_{17}$.</p>
+      <p>Compute Q = k · G step-by-step and visualize the points on the finite grid F<sub>17</sub>.</p>
       
       <div class="calc-controls">
         <label for="privateKey">Private Key (k):</label>
@@ -98,7 +98,7 @@
                 </tr>
               </thead>
               <tbody>
-                <!-- Populated dynamically -->
+                <!-- Populated dynamically by JS -->
               </tbody>
             </table>
           </div>
@@ -108,7 +108,7 @@
         </div>
 
         <div class="canvas-container">
-          <h3>Curve Grid $\mathbb{F}_{17}$ &amp; Computed Path</h3>
+          <h3>Curve Grid F<sub>17</sub> &amp; Computed Path</h3>
           <canvas id="eccCanvas" width="360" height="360"></canvas>
         </div>
       </div>
@@ -118,7 +118,7 @@
     <section class="section-box">
       <h2>4. Statistical Exploration of Scalar Multiplication</h2>
       <p>
-        To evaluate the cryptographic suitability of elliptic curve scalar multiplication, we analyze the statistical properties of generated points $kG$ for $k \in \{1, 2, \dots, 18\}$.
+        To evaluate the cryptographic suitability of elliptic curve scalar multiplication, we analyze the statistical properties of generated points kG for k &isin; {1, 2, ..., 18}.
       </p>
 
       <div class="grid-container" style="margin-top: 20px;">
@@ -133,8 +133,8 @@
       </div>
 
       <div style="margin-top: 24px;">
-        <h3>3. Input-Output Non-Linear Mapping ($k$ vs $x$-coordinate)</h3>
-        <p>The scatter plot below illustrates the absence of linear correlation between the private key $k$ and the resulting public key $x$-coordinate.</p>
+        <h3>3. Input-Output Non-Linear Mapping (k vs x-coordinate)</h3>
+        <p>The scatter plot below illustrates the absence of linear correlation between the private key k and the resulting public key x-coordinate.</p>
         <canvas id="scatterChart" height="120"></canvas>
       </div>
     </section>
@@ -144,7 +144,7 @@
       <h2>5. Cryptographic Discussion &amp; Conclusions</h2>
       <ul>
         <li>
-          <strong>Public-Key Cryptography (ECDLP):</strong> Scalar multiplication on elliptic curves provides pseudo-randomness and non-linearity necessary for security. Crucially, it preserves an <em>additive homomorphic structure</em>: $(k_1 + k_2)G = k_1 G + k_2 G$. This algebraic property allows key exchange protocols (Diffie-Hellman) and digital signatures (ECDSA/Schnorr) to function without exposing private keys.
+          <strong>Public-Key Cryptography (ECDLP):</strong> Scalar multiplication on elliptic curves provides pseudo-randomness and non-linearity necessary for security. Crucially, it preserves an <em>additive homomorphic structure</em>: (k<sub>1</sub> + k<sub>2</sub>)G = k<sub>1</sub>G + k<sub>2</sub>G. This algebraic property allows key exchange protocols (Diffie-Hellman) and digital signatures (ECDSA/Schnorr) to function without exposing private keys.
         </li>
         <li>
           <strong>Cryptographic Hash Functions:</strong> Unlike ECDLP, cryptographic hash functions (e.g., SHA-256, Keccak-256) require the total destruction of algebraic structure. They strictly adhere to the <em>Strict Avalanche Criterion (SAC)</em>, where flipping a single input bit changes every output bit with a probability of 50%, guaranteeing collision resistance and pre-image resistance.
@@ -161,7 +161,5 @@
     © 2026 Alessandro Bianco (matr. 2094385) - Statistics
   </footer>
 
-  <!-- Homework logic script -->
-  <script src="homework1.js"></script>
 </body>
 </html>
