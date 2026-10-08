@@ -1,37 +1,167 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Homework 1 - .....</title>
+  <title>Homework 1 - Elliptic Curve Scalar Multiplication &amp; Statistical Exploration</title>
   <link rel="stylesheet" href="../style.css">
   <link rel="icon" href="../statistics.ico">
+  <!-- External Chart library for statistical plots -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-  <main>
-    <a class="back-btn" href="../index.html">← Torna alla Home</a>
+  <header>
+    <h1>Statistics &amp; Cybersecurity</h1>
+    <p>Homework 1: Public-Key Cryptography — Elliptic Curve Scalar Multiplication &amp; Statistical Exploration</p>
+    <p><a href="../index.html">&larr; Back to Home</a></p>
+  </header>
 
-    <h1>Homework 1 - ...</h1>
-    <p class="subtitle">Sottotitolo</p>
+  <main style="max-width: 1000px; margin: 0 auto; padding: 20px;">
 
-    <h2>Teoria</h2>
-    <p>
-     TParte di teoria
-    </p>
+    <!-- Section 1: Introduction -->
+    <section class="section-box">
+      <h2>1. Theoretical Background &amp; Problem Statement</h2>
+      <p>
+        In modern blockchain architectures such as <strong>Ethereum</strong>, public-key cryptography is leveraged to generate account addresses and verify transaction signatures. 
+        Ethereum utilizes the elliptic curve <code>secp256k1</code> over a massive prime field. The core mechanism mapping a <strong>Private Key ($k$)</strong> to a <strong>Public Key ($Q$)</strong> is <em>Elliptic-Curve Scalar Multiplication</em>:
+      </p>
+      <div class="math-block">
+        Q = k · G = G + G + ... + G  (k times)
+      </div>
+      <p>
+        This operation exhibits <strong>one-way function properties</strong>: computing $Q$ given $k$ and base point $G$ is computationally straightforward (using algorithms like <em>Double-and-Add</em> in $O(\log k)$ time), whereas deriving $k$ from $Q$ and $G$ requires solving the <strong>Elliptic Curve Discrete Logarithm Problem (ECDLP)</strong>, which is computationally intractable for sufficiently large fields.
+      </p>
+      <p>
+        <strong>Objective:</strong> To understand the fundamental mechanics of scalar multiplication without the overhead of 256-bit arithmetic, we study a finite field <em>Toy Curve</em>:
+      </p>
+      <div class="math-block">
+        y² ≡ x³ + 7  (mod 17)
+      </div>
+    </section>
 
-    <h2>Simulazione</h2>
-    <p>.......</p>
+    <!-- Section 2: Mathematical Derivation -->
+    <section class="section-box">
+      <h2>2. Mathematical Derivation of Point Addition</h2>
+      <p>
+        Over a prime Galois Field $\mathbb{F}_p$ (with $p=17$), point operations on $y^2 \equiv x^3 + a\cdot x + b \pmod p$ ($a=0, b=7$) are defined algebraically:
+      </p>
+      <ul>
+        <li><strong>Point Addition ($P \neq R$):</strong> Given $P=(x_1, y_1)$ and $R=(x_2, y_2)$, the slope $m$ and resulting point $S = P + R = (x_3, y_3)$ are:
+          <div class="math-block">
+            m ≡ (y₂ - y₁) · (x₂ - x₁)⁻¹ (mod p)<br>
+            x₃ ≡ m² - x₁ - x₂ (mod p)<br>
+            y₃ ≡ m · (x₁ - x₃) - y₁ (mod p)
+          </div>
+        </li>
+        <li><strong>Point Doubling ($P = R$):</strong> For $2P = (x_3, y_3)$:
+          <div class="math-block">
+            m ≡ (3·x₁² + a) · (2·y₁)⁻¹ (mod p)<br>
+            x₃ ≡ m² - 2·x₁ (mod p)<br>
+            y₃ ≡ m · (x₁ - x₃) - y₁ (mod p)
+          </div>
+        </li>
+      </ul>
+      <p><em>Note: All divisions represent multiplication by the modular multiplicative inverse modulo $p=17$.</em></p>
+    </section>
 
-    <a class="back-btn" href="../index.html">← Torna alla Home</a>
+    <!-- Section 3: Interactive Application -->
+    <section class="section-box">
+      <h2>3. Interactive Toy ECC Scalar Multiplication</h2>
+      <p>Compute $Q = k \cdot G$ step-by-step and visualize the points on the finite grid $\mathbb{F}_{17}$.</p>
+      
+      <div class="calc-controls">
+        <label for="privateKey">Private Key (k):</label>
+        <input type="number" id="privateKey" value="6" min="1" max="18" style="width: 70px;">
+
+        <label for="basePoint">Base Point G:</label>
+        <select id="basePoint">
+          <option value="1,5">G = (1, 5)</option>
+          <option value="2,7">G = (2, 7)</option>
+          <option value="5,8">G = (5, 8)</option>
+          <option value="8,3">G = (8, 3)</option>
+        </select>
+
+        <button id="computeBtn">Compute &amp; Visualize</button>
+      </div>
+
+      <div class="grid-container">
+        <div>
+          <h3>Step-by-Step Scalar Multiplication</h3>
+          <div style="max-height: 320px; overflow-y: auto;">
+            <table class="log-table" id="logTable">
+              <thead>
+                <tr>
+                  <th>Step</th>
+                  <th>Operation</th>
+                  <th>Point (x, y)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+          <div id="pubKeyDisplay" class="public-key-badge">
+            Toy Public Key Q: (5, 8)
+          </div>
+        </div>
+
+        <div class="canvas-container">
+          <h3>Curve Grid $\mathbb{F}_{17}$ &amp; Computed Path</h3>
+          <canvas id="eccCanvas" width="360" height="360"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Statistical Exploration -->
+    <section class="section-box">
+      <h2>4. Statistical Exploration of Scalar Multiplication</h2>
+      <p>
+        To evaluate the cryptographic suitability of elliptic curve scalar multiplication, we analyze the statistical properties of generated points $kG$ for $k \in \{1, 2, \dots, 18\}$.
+      </p>
+
+      <div class="grid-container" style="margin-top: 20px;">
+        <div>
+          <h3>1. Coordinate Frequency Distribution</h3>
+          <canvas id="freqChart" height="200"></canvas>
+        </div>
+        <div>
+          <h3>2. Avalanche Effect (Hamming Distance)</h3>
+          <canvas id="avalancheChart" height="200"></canvas>
+        </div>
+      </div>
+
+      <div style="margin-top: 24px;">
+        <h3>3. Input-Output Non-Linear Mapping ($k$ vs $x$-coordinate)</h3>
+        <p>The scatter plot below illustrates the absence of linear correlation between the private key $k$ and the resulting public key $x$-coordinate.</p>
+        <canvas id="scatterChart" height="120"></canvas>
+      </div>
+    </section>
+
+    <!-- Section 5: Cryptographic Discussion -->
+    <section class="section-box">
+      <h2>5. Cryptographic Discussion &amp; Conclusions</h2>
+      <ul>
+        <li>
+          <strong>Public-Key Cryptography (ECDLP):</strong> Scalar multiplication on elliptic curves provides pseudo-randomness and non-linearity necessary for security. Crucially, it preserves an <em>additive homomorphic structure</em>: $(k_1 + k_2)G = k_1 G + k_2 G$. This algebraic property allows key exchange protocols (Diffie-Hellman) and digital signatures (ECDSA/Schnorr) to function without exposing private keys.
+        </li>
+        <li>
+          <strong>Cryptographic Hash Functions:</strong> Unlike ECDLP, cryptographic hash functions (e.g., SHA-256, Keccak-256) require the total destruction of algebraic structure. They strictly adhere to the <em>Strict Avalanche Criterion (SAC)</em>, where flipping a single input bit changes every output bit with a probability of 50%, guaranteeing collision resistance and pre-image resistance.
+        </li>
+      </ul>
+      <p>
+        <strong>Conclusion:</strong> While scalar multiplication exhibits pseudo-random coordinate distributions and an apparent avalanche-like effect across discrete field elements, its underlying algebraic homomorphism makes it fundamentally tailored for <em>Public-Key Cryptography</em> rather than general-purpose <em>Cryptographic Hashing</em>.
+      </p>
+    </section>
+
   </main>
 
-  <footer class="site-footer">
-    © 2026 Alessandro Bianco (matr. 2094385) - Homework 1
+  <footer>
+    © 2026 Alessandro Bianco (matr. 2094385) - Statistics
   </footer>
 
-  <script src="script.js"></script>
-
+  <!-- Homework logic script -->
+  <script src="homework1.js"></script>
 </body>
 </html>
