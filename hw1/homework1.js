@@ -22,7 +22,7 @@ function pointAdd(P1, P2) {
   let x1 = P1.x, y1 = P1.y;
   let x2 = P2.x, y2 = P2.y;
 
-  if (x1 === x2 && mod(y1 + y2, P) === 0) return null; // Point at Infinity
+  if (x1 === x2 && mod(y1 + y2, P) === 0) return null;
 
   let m;
   if (x1 === x2 && y1 === y2) {
@@ -81,11 +81,6 @@ function hammingDistance(p1, p2) {
   return dist;
 }
 
-// --- UI Rendering & Chart Management ---
-let freqChartInst = null;
-let avalancheChartInst = null;
-let scatterChartInst = null;
-
 function runSimulation() {
   const kVal = parseInt(document.getElementById('privateKey').value);
   const gStr = document.getElementById('basePoint').value.split(',');
@@ -94,28 +89,31 @@ function runSimulation() {
   const steps = scalarMultiply(kVal, G);
   const finalPoint = steps[steps.length - 1].point;
 
-  // Update Log Table
+  // Log Table for Interactive Section
   const tbody = document.querySelector('#logTable tbody');
-  tbody.innerHTML = '';
-  steps.forEach(s => {
-    let ptStr = s.point ? `(${s.point.x}, ${s.point.y})` : 'O (Infinity)';
-    let opStr = s.k === 1 ? 'Base Point G' : `${s.k - 1}G + G`;
-    tbody.innerHTML += `<tr><td>${s.k}</td><td>${opStr}</td><td><strong>${ptStr}</strong></td></tr>`;
-  });
+  if (tbody) {
+    tbody.innerHTML = '';
+    steps.forEach(s => {
+      let ptStr = s.point ? `(${s.point.x}, ${s.point.y})` : 'O (Infinity)';
+      let opStr = s.k === 1 ? 'Base Point G' : `${s.k - 1}G + G`;
+      tbody.innerHTML += `<tr><td>${s.k}</td><td>${opStr}</td><td><strong>${ptStr}</strong></td></tr>`;
+    });
+  }
 
-  // Update Public Key Display
-  const pubKeyText = finalPoint ? `(${finalPoint.x}, ${finalPoint.y})` : 'O (Point at Infinity)';
-  document.getElementById('pubKeyDisplay').innerHTML = `Toy Public Key Q = ${kVal}G: <strong>${pubKeyText}</strong>`;
+  // Public Key Badge
+  const pubDisplay = document.getElementById('pubKeyDisplay');
+  if (pubDisplay) {
+    let pubKeyText = finalPoint ? `(${finalPoint.x}, ${finalPoint.y})` : 'O (Point at Infinity)';
+    pubDisplay.innerHTML = `Toy Public Key Q = ${kVal}G: <strong>${pubKeyText}</strong>`;
+  }
 
-  // Draw Grid Path
   drawCanvas(steps);
-
-  // Render Statistical Charts
-  renderStats(G);
+  populateStatsTable(G);
 }
 
 function drawCanvas(steps) {
   const canvas = document.getElementById('eccCanvas');
+  if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const w = canvas.width;
   const h = canvas.height;
@@ -156,7 +154,7 @@ function drawCanvas(steps) {
     ctx.fill();
   });
 
-  // Path
+  // Multiplication Path
   if (steps.length > 0) {
     ctx.beginPath();
     ctx.strokeStyle = '#2563eb';
@@ -183,66 +181,33 @@ function drawCanvas(steps) {
   }
 }
 
-function renderStats(G) {
+function populateStatsTable(G) {
   const fullSteps = scalarMultiply(18, G);
-  
-  let xCounts = Array(17).fill(0);
-  fullSteps.forEach(s => {
-    if (s.point) xCounts[s.point.x]++;
-  });
+  const tbody = document.querySelector('#statsTable tbody');
+  if (!tbody) return;
 
-  let hammingDists = [];
-  let labelsH = [];
-  for (let i = 1; i < fullSteps.length; i++) {
-    let d = hammingDistance(fullSteps[i - 1].point, fullSteps[i].point);
-    hammingDists.push(d);
-    labelsH.push(`${i}G→${i+1}G`);
+  tbody.innerHTML = '';
+  for (let i = 0; i < fullSteps.length; i++) {
+    let current = fullSteps[i];
+    let prev = i > 0 ? fullSteps[i - 1] : null;
+
+    let ptStr = current.point ? `(${current.point.x}, ${current.point.y})` : 'O (Infinity)';
+    let binX = current.point ? current.point.x.toString(2).padStart(5, '0') : 'N/A';
+    let hDist = prev && current.point && prev.point ? hammingDistance(prev.point, current.point) : '-';
+
+    tbody.innerHTML += `
+      <tr>
+        <td><strong>${current.k}</strong></td>
+        <td>${ptStr}</td>
+        <td><code>${binX}</code></td>
+        <td>${hDist}</td>
+      </tr>
+    `;
   }
-
-  let kVals = fullSteps.map(s => s.k);
-  let xVals = fullSteps.map(s => s.point ? s.point.x : 0);
-
-  if (freqChartInst) freqChartInst.destroy();
-  freqChartInst = new Chart(document.getElementById('freqChart'), {
-    type: 'bar',
-    data: {
-      labels: Array.from({length: 17}, (_, i) => `x=${i}`),
-      datasets: [{ label: 'Frequency of x-coordinate', data: xCounts, backgroundColor: '#3b82f6' }]
-    },
-    options: { responsive: true, plugins: { legend: { display: false } } }
-  });
-
-  if (avalancheChartInst) avalancheChartInst.destroy();
-  avalancheChartInst = new Chart(document.getElementById('avalancheChart'), {
-    type: 'line',
-    data: {
-      labels: labelsH,
-      datasets: [{ label: 'Hamming Distance', data: hammingDists, borderColor: '#ef4444', backgroundColor: '#fca5a5', fill: false }]
-    },
-    options: { responsive: true, plugins: { legend: { display: false } } }
-  });
-
-  if (scatterChartInst) scatterChartInst.destroy();
-  scatterChartInst = new Chart(document.getElementById('scatterChart'), {
-    type: 'scatter',
-    data: {
-      datasets: [{
-        label: 'k vs x(kG)',
-        data: kVals.map((k, idx) => ({ x: k, y: xVals[idx] })),
-        backgroundColor: '#8b5cf6'
-      }]
-    },
-    options: {
-      scales: {
-        x: { title: { display: true, text: 'Private Key k' }, min: 1, max: 18 },
-        y: { title: { display: true, text: 'Public Key x-coordinate' }, min: 0, max: 16 }
-      }
-    }
-  });
 }
 
-// Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('computeBtn').addEventListener('click', runSimulation);
+  const btn = document.getElementById('computeBtn');
+  if (btn) btn.addEventListener('click', runSimulation);
   runSimulation();
 });
