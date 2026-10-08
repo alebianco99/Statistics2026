@@ -3,21 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Homework 1 - Elliptic Curve Scalar Multiplication &amp; Statistical Exploration</title>
+  <title>Homework 1 - Statistics 2026</title>
   <link rel="stylesheet" href="../style.css">
   <link rel="icon" href="../statistics.ico">
+  <!-- Chart.js per i grafici statistici -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="homework1.js"></script>
+  <!-- Il tuo file script.js -->
+  <script src="script.js" defer></script>
 </head>
 <body>
 
   <header>
-    <h1>Statistics &amp; Cybersecurity</h1>
-    <p>Homework 1: Public-Key Cryptography — Elliptic Curve Scalar Multiplication &amp; Statistical Exploration</p>
-    <p><a href="../index.html">&larr; Back to Home</a></p>
+    <div class="container">
+      <div style="display: flex; justify: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <h1>Statistics</h1>
+          <p>Homework 1: Public-Key Cryptography — Elliptic Curve Scalar Multiplication &amp; Statistical Exploration</p>
+        </div>
+        <a href="../index.html" class="btn-back" style="padding: 8px 16px; background-color: #2563eb; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 0.9em; display: inline-block;">&larr; Back to Home</a>
+      </div>
+    </div>
   </header>
 
-  <main style="max-width: 1000px; margin: 0 auto; padding: 20px;">
+  <main class="container">
 
     <!-- Section 1: Introduction -->
     <section class="section-box">
@@ -98,7 +106,7 @@
                 </tr>
               </thead>
               <tbody>
-                <!-- Populated dynamically by JS -->
+                <!-- Populated dynamically by script.js -->
               </tbody>
             </table>
           </div>
@@ -158,7 +166,9 @@
   </main>
 
   <footer>
-    © 2026 Alessandro Bianco (matr. 2094385) - Statistics
+    <div class="container">
+      © 2026 Alessandro Bianco (matr. 2094385) - Statistics
+    </div>
   </footer>
 
 </body>
