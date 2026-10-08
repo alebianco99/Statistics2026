@@ -224,3 +224,37 @@ canvas {
   font-size: 1.1em;
   margin-top: 12px;
 }
+
+
+/* --- Header Layout & Back Button --- */
+.header-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.btn-back {
+  padding: 8px 16px;
+  background-color: #2563eb;
+  color: #ffffff;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 0.9em;
+  transition: background-color 0.2s ease;
+}
+
+.btn-back:hover {
+  background-color: #1d4ed8;
+}
+
+/* Container principale per il contenuto degli Homework */
+.hw-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}

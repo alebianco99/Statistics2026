@@ -10,8 +10,8 @@
   <script src="homework1.js" defer></script>
 </head>
 <body>
-  <main class="container">
-    <a class="back-btn" href="../index.html">← Torna alla Home</a>
+  <main class="hw-container">
+    <a href="../index.html" class="btn-back">&larr; Back to Home</a>
     <h1>Statistics</h1>
     <p>Homework 1: Public-Key Cryptography — Elliptic Curve Scalar Multiplication &amp; Statistical Exploration</p>
     <!-- Section 1: Introduction -->
@@ -67,7 +67,7 @@
       
       <div class="calc-controls">
         <label for="privateKey">Private Key (k):</label>
-        <input type="number" id="privateKey" value="6" min="1" max="18" style="width: 70px;">
+        <input type="number" id="privateKey" value="6" min="1" max="18">
 
         <label for="basePoint">Base Point G:</label>
         <select id="basePoint">
@@ -83,7 +83,7 @@
       <div class="grid-container">
         <div>
           <h3>Step-by-Step Scalar Multiplication</h3>
-          <div style="max-height: 320px; overflow-y: auto;">
+          <div class="table-wrapper">
             <table class="log-table" id="logTable">
               <thead>
                 <tr>
@@ -93,7 +93,7 @@
                 </tr>
               </thead>
               <tbody>
-                <!-- Populated dynamically by script.js -->
+                <!-- Populated dynamically by homework1.js -->
               </tbody>
             </table>
           </div>
@@ -116,7 +116,7 @@
         To evaluate the cryptographic suitability of elliptic curve scalar multiplication, we analyze the statistical properties of generated points kG for k &isin; {1, 2, ..., 18}.
       </p>
 
-      <div class="grid-container" style="margin-top: 20px;">
+      <div class="grid-container">
         <div>
           <h3>1. Coordinate Frequency Distribution</h3>
           <canvas id="freqChart" height="200"></canvas>
@@ -127,7 +127,7 @@
         </div>
       </div>
 
-      <div style="margin-top: 24px;">
+      <div class="scatter-box">
         <h3>3. Input-Output Non-Linear Mapping (k vs x-coordinate)</h3>
         <p>The scatter plot below illustrates the absence of linear correlation between the private key k and the resulting public key x-coordinate.</p>
         <canvas id="scatterChart" height="120"></canvas>
@@ -152,7 +152,7 @@
 
   </main>
 
-  <footer class="site-footer">
+  <footer>
     © 2026 Alessandro Bianco (matr. 2094385) - Statistics
   </footer>
 
