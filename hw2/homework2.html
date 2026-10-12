@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Homework 2 - Statistics 2026</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" href="../statistics.ico">
+  <!-- External cryptographic library for Ethereum pipeline -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="homework2.js" defer></script>
+</head>
+<body>
+  <main class="hw-container">
+    <a href="../index.html" class="btn-back">&larr; Back to Home</a>
+    <h1>Statistics</h1>
+    <p>Homework 2: From Wallet Seed to Ethereum Address — Hashing, Key Derivation &amp; Cryptographic Primitives</p>
+
+    <!-- Section 1: Overview & Theoretical Taxonomy -->
+    <section class="section-box">
+      <h2>1. Theoretical Taxonomy of Cryptographic Concepts</h2>
+      <p>
+        To understand the architecture of modern cryptocurrency wallets (such as MetaMask, Rabby, Exodus, or Rainbow), we must distinguish between fundamental cryptographic operations:
+      </p>
+      <ul>
+        <li>
+          <strong>Key Generation vs. Key Derivation:</strong> <em>Key Generation</em> creates a primary source of high-entropy randomness (e.g., a 128-bit or 256-bit entropy buffer). <em>Key Derivation</em> pseudorandomly computes child keys from a single master seed using deterministic hash-based functions (PBKDF2, HMAC-SHA512).
+        </li>
+        <li>
+          <strong>Public-Key Cryptography (Asymmetric):</strong> Utilizes mathematical one-way trapdoor functions (such as discrete logarithms on elliptic curves) to create paired keys: a Private Key for signing transactions and a Public Key for signature verification.
+        </li>
+        <li>
+          <strong>Cryptographic Hashing:</strong> One-way deterministic functions mapping arbitrary-length inputs to fixed-size output strings. They provide pre-image resistance, second pre-image resistance, and collision resistance.
+        </li>
+        <li>
+          <strong>Checksums &amp; Encoding:</strong> <em>Encoding</em> represents binary data in human-readable formats (e.g., Hexadecimal or Base58). A <em>Checksum</em> appends redundancy bits or case variations to detect human transcription errors or typos before sending funds.
+        </li>
+      </ul>
+    </section>
+
+    <!-- Section 2: Historical Timeline -->
+    <section class="section-box">
+      <h2>2. Chronological &amp; Historical Context</h2>
+      <p>
+        The Ethereum wallet pipeline does not rely on a monolithic protocol created at a single moment; rather, it combines decades of evolutionary cryptographic standards:
+      </p>
+      <ul>
+        <li><strong>1977 — RSA (Rivest-Shamir-Adleman):</strong> The first widely commercialized public-key cryptosystem, based on prime factorization integer hardness.</li>
+        <li><strong>2001 — SHA-2 / SHA-512:</strong> Standardized by NIST, based on the Merkle–Damgård construction, widely used in Bitcoin and seed derivation protocols.</li>
+        <li><strong>2012 — BIP-32:</strong> Proposed Hierarchical Deterministic (HD) wallets, allowing tree-structured key generation from a single seed.</li>
+        <li><strong>2013 — BIP-39:</strong> Standardized human-friendly 12-to-24 word mnemonic sentences mapped to binary seeds via PBKDF2.</li>
+        <li><strong>2014 — BIP-44:</strong> Established multi-account, multi-coin derivation path structures (e.g., <code>m/44'/60'/0'/0/0</code> for Ethereum).</li>
+        <li><strong>2015 — SHA-3 (NIST FIPS 202):</strong> Standardized cryptographic hash family based on the Keccak sponge construction.</li>
+        <li><strong>2016 — EIP-55:</strong> Ethereum proposal introducing mixed-case checksum encoding to prevent mistyped address transfers.</li>
+      </ul>
+
+      <h3>Keccak-256 vs. Standard SHA3-256</h3>
+      <p>
+        A critical technical distinction exists between <strong>Keccak-256</strong> (used by Ethereum) and <strong>NIST SHA3-256</strong>. 
+        While both use the same underlying permutation engine developed by Guido Bertoni, Joan Daemen, Michaël Peeters, and Gilles Van Assche, they differ in their <em>domain separation padding</em>:
+      </p>
+      <div class="math-block">
+        Keccak-256 Padding Byte: 0x01 &nbsp;|&nbsp; NIST SHA3-256 Padding Byte: 0x06
+      </div>
+      <p>
+        Ethereum adopted Keccak-256 prior to the finalization of the NIST standard in FIPS 202. Consequently, hashing the same input with Keccak-256 and NIST SHA3-256 yields completely different output hashes.
+      </p>
+    </section>
+
+    <!-- Section 3: Interactive Pipeline -->
+    <section class="section-box">
+      <h2>3. Interactive Ethereum Wallet Pipeline Simulation</h2>
+      <p>Simulate the exact step-by-step cryptographic transformations from a 12-word Mnemonic to a Checksummed Ethereum Address.</p>
+
+      <div class="calc-controls">
+        <button id="generateBtn">Generate Random Wallet</button>
+        <button id="deriveBtn">Derive Custom Path</button>
+      </div>
+
+      <div style="margin-top: 16px;">
+        <label for="mnemonicInput"><strong>BIP-39 Mnemonic Phrase (12 Words):</strong></label>
+        <textarea id="mnemonicInput" rows="2" style="width: 100%; font-family: monospace; padding: 8px; margin-top: 6px;" readonly></textarea>
+      </div>
+
+      <div style="margin-top: 12px;">
+        <label for="pathInput"><strong>BIP-44 Derivation Path:</strong></label>
+        <input type="text" id="pathInput" value="m/44'/60'/0'/0/0" style="width: 250px; font-family: monospace;">
+      </div>
+
+      <div class="table-wrapper" style="margin-top: 20px;">
+        <table class="log-table" id="pipelineTable">
+          <thead>
+            <tr>
+              <th style="width: 20%;">Pipeline Stage</th>
+              <th style="width: 25%;">Primitive / Standard</th>
+              <th>Derived Value / Output</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1. BIP-39 Seed</strong></td>
+              <td>PBKDF2 (HMAC-SHA512)</td>
+              <td><code id="outSeed">-</code></td>
+            </tr>
+            <tr>
+              <td><strong>2. Private Key</strong></td>
+              <td>BIP-32 / BIP-44 HD Path</td>
+              <td><code id="outPrivKey">-</code></td>
+            </tr>
+            <tr>
+              <td><strong>3. Public Key</strong></td>
+              <td>secp256k1 ($Q = k \cdot G$)</td>
+              <td><code id="outPubKey" style="word-break: break-all;">-</code></td>
+            </tr>
+            <tr>
+              <td><strong>4. Raw Hash</strong></td>
+              <td>Keccak-256 (64-byte uncompressed)</td>
+              <td><code id="outHash" style="word-break: break-all;">-</code></td>
+            </tr>
+            <tr>
+              <td><strong>5. Raw Address</strong></td>
+              <td>Last 20 Bytes Truncation</td>
+              <td><code id="outRawAddr">-</code></td>
+            </tr>
+            <tr>
+              <td><strong>6. Final Address</strong></td>
+              <td>EIP-55 Checksum Encoding</td>
+              <td><strong id="outFinalAddr" style="color: #2563eb; font-size: 1.1em;">-</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 4: Statistical Exploration & Architectural Discussion -->
+    <section class="section-box">
+      <h2>4. Statistical Exploration &amp; System Modularity</h2>
+      
+      <h3>Statistical Uniformity and Bit Independence</h3>
+      <p>
+        The security of the wallet architecture relies on the statistical independence and uniform distribution of each layer:
+      </p>
+      <ul>
+        <li><strong>Entropy to Seed (PBKDF2):</strong> Applying 2048 rounds of HMAC-SHA512 stretches 128 bits of initial randomness into a 512-bit seed, eliminating short-word structural patterns in natural language mnemonics.</li>
+        <li><strong>ECDSA Key Uniformity:</strong> The private key space consists of integers $k \in [1, n-1]$ where $n \approx 1.158 \times 10^{77}$. The point multiplication $Q = k \cdot G$ maps uniformly across the field.</li>
+        <li><strong>Hash Uniformity:</strong> Keccak-256 exhibits optimal pseudo-randomness, where flipping a single bit in the public key alters on average 50% of the bits in the output hash.</li>
+      </ul>
+
+      <h3>Why Use Multiple Primitives Instead of One Single Algorithm?</h3>
+      <p>
+        A secure blockchain ecosystem requires distinct cryptographic properties that no single algorithm can fulfill simultaneously:
+      </p>
+      <ul>
+        <li><strong>BIP-39 / BIP-32 / BIP-44 (Key Management):</strong> Provides human usability (memorizable words) and hierarchical key tree derivation, allowing a user to back up a single phrase while generating millions of independent addresses.</li>
+        <li><strong>secp256k1 (Asymmetric Cryptography):</strong> Provides digital signatures (ECDSA) to prove ownership without disclosing the private key.</li>
+        <li><strong>Keccak-256 (Cryptographic Hashing):</strong> Shortens 65-byte public keys to 32-byte hashes, destroying algebraic homomorphism to prevent public-key-based lattice or quantum exposure until funds are actually spent.</li>
+        <li><strong>EIP-55 (Error Detection / Checksum):</strong> Protects against human mistranscription errors during wallet transactions without adding protocol-level payload overhead.</li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    © 2026 Alessandro Bianco (matr. 2094385) - Statistics
+  </footer>
+
+</body>
+</html>
