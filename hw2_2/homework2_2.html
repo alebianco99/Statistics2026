@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Homework 2 - Statistics 2026</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" href="../statistics.ico">
+  <script src="homework2_2.js" defer></script>
+</head>
+<body>
+  <main class="hw-container">
+    <a href="../index.html" class="btn-back">&larr; Back to Home</a>
+    <h1>Statistics</h1>
+    <p>Homework 2: Cryptographic Schemes, Statistical Cryptanalysis and Key Space Vulnerabilities</p>
+
+    <!-- Section 1: Classical vs Modern Cryptography -->
+    <section class="section-box">
+      <h2>1. Theoretical Background &amp; Scheme Comparison</h2>
+      <p>
+        Cryptographic schemes can be broadly categorized by their underlying security assumptions and key space structures:
+      </p>
+      <ul>
+        <li>
+          <strong>The Caesar Cipher:</strong> A classical symmetric substitution cipher where each letter in the plaintext is shifted by a fixed key $K \in \{0, \dots, 25\}$. It preserves the statistical frequency distribution of the underlying language, making it vulnerable to frequency analysis.
+        </li>
+        <li>
+          <strong>Toy Elliptic Curve Encryption (ECC ElGamal-style):</strong> A modern asymmetric scheme based on the hardness of the Elliptic Curve Discrete Logarithm Problem (ECDLP) over $\mathbb{F}_{17}$. A private key $k$ defines a public key $Q = k \cdot G$. Encryption uses an ephemeral scalar $r$ to generate $C_1 = rG$ and $C_2 = M + rQ$, masking the message without preserving language statistics.
+        </li>
+      </ul>
+
+      <div class="table-wrapper" style="margin-top: 15px;">
+        <table class="log-table">
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th>Caesar Cipher</th>
+              <th>Toy ECC Scheme ($\mathbb{F}_{17}$)</th>
+              <th>Full secp256k1 ECC</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Key Type</strong></td>
+              <td>Symmetric (Shared)</td>
+              <td>Asymmetric (Private/Public)</td>
+              <td>Asymmetric (Private/Public)</td>
+            </tr>
+            <tr>
+              <td><strong>Key Space Size</strong></td>
+              <td>26 possible keys</td>
+              <td>18 possible scalar keys</td>
+              <td>$\sim 2^{256}$ keys ($\approx 1.15 \times 10^{77}$)</td>
+            </tr>
+            <tr>
+              <td><strong>Vulnerability</strong></td>
+              <td>Language frequency statistics</td>
+              <td>Exhaustive search (due to toy field)</td>
+              <td>None known (computationally hard)</td>
+            </tr>
+            <tr>
+              <td><strong>Statistical Output</strong></td>
+              <td>Monoalphabetic frequency shift</td>
+              <td>Uniform pseudo-random points</td>
+              <td>Uniform pseudo-random points</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 2: Caesar Cipher & Statistical Cryptanalysis -->
+    <section class="section-box">
+      <h2>2. Interactive Caesar Cipher &amp; Statistical Cryptanalysis</h2>
+      <p>
+        The frequency attack evaluates all 26 possible shifts and computes the Chi-Square ($\chi^2$) statistic comparing the ciphertext letter distribution against standard English letter frequencies:
+      </p>
+      <div class="math-block">
+        \chi^2 = \sum_{i=A}^{Z} \frac{(O_i - E_i)^2}{E_i}
+      </div>
+
+      <div style="margin-top: 15px;">
+        <label for="caesarInput"><strong>Plaintext Message:</strong></label>
+        <textarea id="caesarInput" rows="3" style="width: 100%; padding: 8px; font-family: monospace;">STATISTICS AND CRYPTOGRAPHY PROVIDE THE FOUNDATION FOR BLOCKCHAIN SECURITY AND DISTRIBUTED SYSTEMS</textarea>
+      </div>
+
+      <div class="calc-controls" style="margin-top: 10px;">
+        <label for="caesarShift">Shift Key (K):</label>
+        <input type="number" id="caesarShift" value="7" min="0" max="25">
+        <button id="encryptCaesarBtn">Encrypt &amp; Analyze</button>
+      </div>
+
+      <div style="margin-top: 15px;">
+        <label><strong>Ciphertext:</strong></label>
+        <div id="caesarCiphertext" style="font-family: monospace; background: #f8fafc; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; word-break: break-all;">-</div>
+      </div>
+
+      <div style="margin-top: 15px;">
+        <h3>Automated Statistical Key Recovery ($\chi^2$ Minimization)</h3>
+        <p>Recovered Key: <strong id="recoveredKeyDisplay" style="color: #2563eb; font-size: 1.2em;">-</strong></p>
+        <div id="decryptedCaesar" style="font-family: monospace; background: #f0fdf4; padding: 10px; border: 1px solid #86efac; border-radius: 4px; word-break: break-all;">-</div>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <h3>Effectiveness vs. Text Length</h3>
+        <p>
+          Frequency analysis relies on the Law of Large Numbers. For short texts, random variance dominates, causing wrong key predictions. Below is an automated test across varying message lengths:
+        </p>
+        <div class="table-wrapper">
+          <table class="log-table" id="lengthTestTable">
+            <thead>
+              <tr>
+                <th>Sample Length</th>
+                <th>Sample Ciphertext Snippet</th>
+                <th>Predicted Key</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Toy ECC Encryption & Key Space Attack -->
+    <section class="section-box">
+      <h2>3. Toy ECC Encryption &amp; Restricted Key Space Attack</h2>
+      <p>
+        We utilize the Toy Curve $y^2 \equiv x^3 + 7 \pmod{17}$ with Base Point $G = (1, 5)$. To make calculations feasible on a toy curve, private keys $k$ are chosen from a restricted key space $k \in \{1, \dots, 18\}$.
+      </p>
+
+      <div class="calc-controls">
+        <label for="eccPrivKey">Private Key ($k$):</label>
+        <input type="number" id="eccPrivKey" value="5" min="1" max="18">
+
+        <label for="eccEphKey">Ephemeral Key ($r$):</label>
+        <input type="number" id="eccEphKey" value="3" min="1" max="18">
+
+        <label for="eccMsgVal">Message Point Index ($M$):</label>
+        <input type="number" id="eccMsgVal" value="4" min="1" max="18">
+
+        <button id="runEccBtn">Encrypt, Decrypt &amp; Attack</button>
+      </div>
+
+      <div class="table-wrapper" style="margin-top: 15px;">
+        <table class="log-table">
+          <thead>
+            <tr>
+              <th>Stage</th>
+              <th>Operation / Formula</th>
+              <th>Computed Point / Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Public Key Generation</strong></td>
+              <td>$Q = k \cdot G$</td>
+              <td><code id="eccPubKeyDisplay">-</code></td>
+            </tr>
+            <tr>
+              <td><strong>Encryption ($C_1$)</strong></td>
+              <td>$C_1 = r \cdot G$</td>
+              <td><code id="eccC1Display">-</code></td>
+            </tr>
+            <tr>
+              <td><strong>Shared Secret ($S$)</strong></td>
+              <td>$S = r \cdot Q = r(kG)$</td>
+              <td><code id="eccSDisplay">-</code></td>
+            </tr>
+            <tr>
+              <td><strong>Ciphertext Point ($C_2$)</strong></td>
+              <td>$C_2 = M \cdot G + S$</td>
+              <td><code id="eccC2Display">-</code></td>
+            </tr>
+            <tr>
+              <td><strong>Decryption ($M \cdot G$)</strong></td>
+              <td>$C_2 - k \cdot C_1 = M \cdot G$</td>
+              <td><strong id="eccDecryptedDisplay" style="color: #16a34a;">-</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <h3>Brute-Force Key Recovery Attack (Exploiting Restricted Space)</h3>
+        <p>
+          Given only the Base Point $G$ and Public Key $Q$, an attacker tests all candidates $\hat{k} \in \{1, 2, \dots, 18\}$ until $\hat{k} \cdot G = Q$:
+        </p>
+        <div style="background: #fff7ed; padding: 12px; border: 1px solid #fdba74; border-radius: 6px;">
+          <p style="margin: 0;"><strong>Attack Status:</strong> <span id="eccAttackStatus">-</span></p>
+          <p style="margin: 5px 0 0 0;"><strong>Steps Required:</strong> <span id="eccAttackSteps">-</span></p>
+          <p style="margin: 5px 0 0 0;"><strong>Recovered Private Key:</strong> <strong id="eccAttackKey" style="color: #c2410c;">-</strong></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Analytical Discussion -->
+    <section class="section-box">
+      <h2>4. Comparative Analysis &amp; Vulnerability Discussion</h2>
+      
+      <h3>1. Statistical Attack (Caesar) vs. Structural Attack (Toy ECC)</h3>
+      <p>
+        The attack on the Caesar cipher succeeds by exploiting <strong>natural language statistical redundancy</strong>. It measures the letter frequency distribution of the ciphertext and aligns it with the expected language profile.
+      </p>
+      <p>
+        In contrast, the attack on the Toy ECC scheme does not rely on language statistics (the output points of ECC appear pseudo-randomly distributed). Instead, it succeeds purely because the <strong>key space is artificially restricted</strong> ($|K| = 18$), allowing exhaustive search over the Discrete Logarithm Problem.
+      </p>
+
+      <h3>2. Feasibility on Properly Configured ECC</h3>
+      <p>
+        In a standard production curve like <code>secp256k1</code>, the order of the base point $n$ is a 256-bit prime number:
+      </p>
+      <div class="math-block">
+        n \approx 1.1579 \times 10^{77}
+      </div>
+      <p>
+        Evaluating $1.1579 \times 10^{77}$ operations via brute force or Pollard's rho algorithm ($O(\sqrt{n}) \approx 2^{128}$ steps) exceeds the energy capacity of all computing systems on Earth combined. Thus, the vulnerability of our Toy ECC lies solely in its restricted parameter size, not in the fundamental mathematics of the curve.
+      </p>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    © 2026 Alessandro Bianco (matr. 2094385) - Statistics
+  </footer>
+
+</body>
+</html>
