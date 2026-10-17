@@ -12,7 +12,7 @@
   <main class="hw-container">
     <a href="../index.html" class="btn-back">&larr; Back to Home</a>
     <h1>Statistics</h1>
-    <p>Homework 2: Cryptographic Schemes, Statistical Cryptanalysis and Key Space Vulnerabilities</p>
+    <p>Homework 2: Cryptographic Schemes, Statistical Cryptanalysis &amp; Key Space Vulnerabilities</p>
 
     <!-- Section 1: Classical vs Modern Cryptography -->
     <section class="section-box">
@@ -22,10 +22,10 @@
       </p>
       <ul>
         <li>
-          <strong>The Caesar Cipher:</strong> A classical symmetric substitution cipher where each letter in the plaintext is shifted by a fixed key $K \in \{0, \dots, 25\}$. It preserves the statistical frequency distribution of the underlying language, making it vulnerable to frequency analysis.
+          <strong>The Caesar Cipher:</strong> A classical symmetric substitution cipher where each letter in the plaintext is shifted by a fixed key <em>K</em> &isin; {0, ..., 25}. It preserves the statistical frequency distribution of the underlying language, making it vulnerable to frequency analysis.
         </li>
         <li>
-          <strong>Toy Elliptic Curve Encryption (ECC ElGamal-style):</strong> A modern asymmetric scheme based on the hardness of the Elliptic Curve Discrete Logarithm Problem (ECDLP) over $\mathbb{F}_{17}$. A private key $k$ defines a public key $Q = k \cdot G$. Encryption uses an ephemeral scalar $r$ to generate $C_1 = rG$ and $C_2 = M + rQ$, masking the message without preserving language statistics.
+          <strong>Toy Elliptic Curve Encryption (ECC ElGamal-style):</strong> A modern asymmetric scheme based on the hardness of the Elliptic Curve Discrete Logarithm Problem (ECDLP) over F<sub>17</sub>. A private key <em>k</em> defines a public key <em>Q = k &middot; G</em>. Encryption uses an ephemeral scalar <em>r</em> to generate <em>C<sub>1</sub> = r &middot; G</em> and <em>C<sub>2</sub> = M + r &middot; Q</em>, masking the message without preserving language statistics.
         </li>
       </ul>
 
@@ -35,7 +35,7 @@
             <tr>
               <th>Property</th>
               <th>Caesar Cipher</th>
-              <th>Toy ECC Scheme ($\mathbb{F}_{17}$)</th>
+              <th>Toy ECC Scheme (F<sub>17</sub>)</th>
               <th>Full secp256k1 ECC</th>
             </tr>
           </thead>
@@ -50,7 +50,7 @@
               <td><strong>Key Space Size</strong></td>
               <td>26 possible keys</td>
               <td>18 possible scalar keys</td>
-              <td>$\sim 2^{256}$ keys ($\approx 1.15 \times 10^{77}$)</td>
+              <td>&approx; 2<sup>256</sup> keys (&approx; 1.15 &times; 10<sup>77</sup>)</td>
             </tr>
             <tr>
               <td><strong>Vulnerability</strong></td>
@@ -73,10 +73,10 @@
     <section class="section-box">
       <h2>2. Interactive Caesar Cipher &amp; Statistical Cryptanalysis</h2>
       <p>
-        The frequency attack evaluates all 26 possible shifts and computes the Chi-Square ($\chi^2$) statistic comparing the ciphertext letter distribution against standard English letter frequencies:
+        The frequency attack evaluates all 26 possible shifts and computes the Chi-Square (&chi;<sup>2</sup>) statistic comparing the ciphertext letter distribution against standard English letter frequencies:
       </p>
       <div class="math-block">
-        \chi^2 = \sum_{i=A}^{Z} \frac{(O_i - E_i)^2}{E_i}
+        &chi;<sup>2</sup> = &sum;<sub>i=A..Z</sub> (O<sub>i</sub> - E<sub>i</sub>)<sup>2</sup> / E<sub>i</sub>
       </div>
 
       <div style="margin-top: 15px;">
@@ -96,7 +96,7 @@
       </div>
 
       <div style="margin-top: 15px;">
-        <h3>Automated Statistical Key Recovery ($\chi^2$ Minimization)</h3>
+        <h3>Automated Statistical Key Recovery (&chi;<sup>2</sup> Minimization)</h3>
         <p>Recovered Key: <strong id="recoveredKeyDisplay" style="color: #2563eb; font-size: 1.2em;">-</strong></p>
         <div id="decryptedCaesar" style="font-family: monospace; background: #f0fdf4; padding: 10px; border: 1px solid #86efac; border-radius: 4px; word-break: break-all;">-</div>
       </div>
@@ -128,17 +128,17 @@
     <section class="section-box">
       <h2>3. Toy ECC Encryption &amp; Restricted Key Space Attack</h2>
       <p>
-        We utilize the Toy Curve $y^2 \equiv x^3 + 7 \pmod{17}$ with Base Point $G = (1, 5)$. To make calculations feasible on a toy curve, private keys $k$ are chosen from a restricted key space $k \in \{1, \dots, 18\}$.
+        We utilize the Toy Curve y<sup>2</sup> &equiv; x<sup>3</sup> + 7 (mod 17) with Base Point G = (1, 5). To make calculations feasible on a toy curve, private keys <em>k</em> are chosen from a restricted key space <em>k</em> &isin; {1, ..., 18}.
       </p>
 
       <div class="calc-controls">
-        <label for="eccPrivKey">Private Key ($k$):</label>
+        <label for="eccPrivKey">Private Key (k):</label>
         <input type="number" id="eccPrivKey" value="5" min="1" max="18">
 
-        <label for="eccEphKey">Ephemeral Key ($r$):</label>
+        <label for="eccEphKey">Ephemeral Key (r):</label>
         <input type="number" id="eccEphKey" value="3" min="1" max="18">
 
-        <label for="eccMsgVal">Message Point Index ($M$):</label>
+        <label for="eccMsgVal">Message Point Index (M):</label>
         <input type="number" id="eccMsgVal" value="4" min="1" max="18">
 
         <button id="runEccBtn">Encrypt, Decrypt &amp; Attack</button>
@@ -156,27 +156,27 @@
           <tbody>
             <tr>
               <td><strong>Public Key Generation</strong></td>
-              <td>$Q = k \cdot G$</td>
+              <td>Q = k &middot; G</td>
               <td><code id="eccPubKeyDisplay">-</code></td>
             </tr>
             <tr>
-              <td><strong>Encryption ($C_1$)</strong></td>
-              <td>$C_1 = r \cdot G$</td>
+              <td><strong>Encryption (C<sub>1</sub>)</strong></td>
+              <td>C<sub>1</sub> = r &middot; G</td>
               <td><code id="eccC1Display">-</code></td>
             </tr>
             <tr>
-              <td><strong>Shared Secret ($S$)</strong></td>
-              <td>$S = r \cdot Q = r(kG)$</td>
+              <td><strong>Shared Secret (S)</strong></td>
+              <td>S = r &middot; Q = r(k &middot; G)</td>
               <td><code id="eccSDisplay">-</code></td>
             </tr>
             <tr>
-              <td><strong>Ciphertext Point ($C_2$)</strong></td>
-              <td>$C_2 = M \cdot G + S$</td>
+              <td><strong>Ciphertext Point (C<sub>2</sub>)</strong></td>
+              <td>C<sub>2</sub> = M &middot; G + S</td>
               <td><code id="eccC2Display">-</code></td>
             </tr>
             <tr>
-              <td><strong>Decryption ($M \cdot G$)</strong></td>
-              <td>$C_2 - k \cdot C_1 = M \cdot G$</td>
+              <td><strong>Decryption (M &middot; G)</strong></td>
+              <td>C<sub>2</sub> - k &middot; C<sub>1</sub> = M &middot; G</td>
               <td><strong id="eccDecryptedDisplay" style="color: #16a34a;">-</strong></td>
             </tr>
           </tbody>
@@ -186,7 +186,7 @@
       <div style="margin-top: 20px;">
         <h3>Brute-Force Key Recovery Attack (Exploiting Restricted Space)</h3>
         <p>
-          Given only the Base Point $G$ and Public Key $Q$, an attacker tests all candidates $\hat{k} \in \{1, 2, \dots, 18\}$ until $\hat{k} \cdot G = Q$:
+          Given only the Base Point G and Public Key Q, an attacker tests all candidates <em>k</em> &isin; {1, 2, ..., 18} until <em>k &middot; G = Q</em>:
         </p>
         <div style="background: #fff7ed; padding: 12px; border: 1px solid #fdba74; border-radius: 6px;">
           <p style="margin: 0;"><strong>Attack Status:</strong> <span id="eccAttackStatus">-</span></p>
@@ -205,18 +205,18 @@
         The attack on the Caesar cipher succeeds by exploiting <strong>natural language statistical redundancy</strong>. It measures the letter frequency distribution of the ciphertext and aligns it with the expected language profile.
       </p>
       <p>
-        In contrast, the attack on the Toy ECC scheme does not rely on language statistics (the output points of ECC appear pseudo-randomly distributed). Instead, it succeeds purely because the <strong>key space is artificially restricted</strong> ($|K| = 18$), allowing exhaustive search over the Discrete Logarithm Problem.
+        In contrast, the attack on the Toy ECC scheme does not rely on language statistics (the output points of ECC appear pseudo-randomly distributed). Instead, it succeeds purely because the <strong>key space is artificially restricted</strong> (|K| = 18), allowing exhaustive search over the Discrete Logarithm Problem.
       </p>
 
       <h3>2. Feasibility on Properly Configured ECC</h3>
       <p>
-        In a standard production curve like <code>secp256k1</code>, the order of the base point $n$ is a 256-bit prime number:
+        In a standard production curve like <code>secp256k1</code>, the order of the base point <em>n</em> is a 256-bit prime number:
       </p>
       <div class="math-block">
-        n \approx 1.1579 \times 10^{77}
+        n &approx; 1.1579 &times; 10<sup>77</sup>
       </div>
       <p>
-        Evaluating $1.1579 \times 10^{77}$ operations via brute force or Pollard's rho algorithm ($O(\sqrt{n}) \approx 2^{128}$ steps) exceeds the energy capacity of all computing systems on Earth combined. Thus, the vulnerability of our Toy ECC lies solely in its restricted parameter size, not in the fundamental mathematics of the curve.
+        Evaluating 1.1579 &times; 10<sup>77</sup> operations via brute force or Pollard's rho algorithm (O(&radic;n) &approx; 2<sup>128</sup> steps) exceeds the energy capacity of all computing systems on Earth combined. Thus, the vulnerability of our Toy ECC lies solely in its restricted parameter size, not in the fundamental mathematics of the curve.
       </p>
     </section>
 
