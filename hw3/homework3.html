@@ -23,11 +23,11 @@
       <ul>
         <li>
           <strong>Bernoulli Model:</strong> X<sub>i</sub> &isin; {0, 1} with P(X<sub>i</sub> = 1) = p. Represents success (penetration) or failure at each step.
-          <br>Mean &mathbb;[X<sub>i</sub>] = p, Variance Var(X<sub>i</sub>) = p(1 - p).
+          <br>Mean E[X<sub>i</sub>] = p, Variance Var(X<sub>i</sub>) = p(1 - p).
         </li>
         <li>
           <strong>Rademacher Model:</strong> X<sub>i</sub> &isin; {-1, +1} with P(X<sub>i</sub> = +1) = P(X<sub>i</sub> = -1) = 1/2. Represents a symmetric zero-mean process.
-          <br>Mean &mathbb;[X<sub>i</sub>] = 0, Variance Var(X<sub>i</sub>) = 1.
+          <br>Mean E[X<sub>i</sub>] = 0, Variance Var(X<sub>i</sub>) = 1.
         </li>
       </ul>
 
@@ -40,7 +40,7 @@
         2. Average Score: S<sub>n</sub> / n = (1/n) &sum; X<sub>i</sub> &nbsp;&nbsp;|&nbsp;&nbsp; Var(S<sub>n</sub>/n) = &sigma;<sup>2</sup> / n &rarr; 0 (Law of Large Numbers)
       </div>
       <div class="math-block">
-        3. Normalized Score: S<sub>n</sub> / &radic;n = (1/&radic;n) &sum; X<sub>i</sub> &nbsp;&nbsp;|&nbsp;&nbsp; Var(S<sub>n</sub>/&radic;n) = &sigma;<sup>2</sup> &rightarrow; &mathcal;N}(0, 1) (Central Limit Theorem)
+        3. Normalized Score: S<sub>n</sub> / &radic;n = (1/&radic;n) &sum; X<sub>i</sub> &nbsp;&nbsp;|&nbsp;&nbsp; Var(S<sub>n</sub>/&radic;n) = &sigma;<sup>2</sup> &rarr; N(0, 1) (Central Limit Theorem)
       </div>
     </section>
 
@@ -108,13 +108,13 @@
       
       <h3>1. Law of Large Numbers (LLN) &amp; Average Score Behavior</h3>
       <p>
-        As step count <em>n</em> increases, the average score <em>S<sub>n</sub>/n</em> collapses onto the theoretical expected value &mathbb;[X<sub>i</sub>]. The variance scales as &sigma;<sup>2</sup>/n, tending to zero. In a cybersecurity context, this means that as an attacker targets a large number of systems, their overall empirical success rate stabilizes precisely at their intrinsic probability of compromise.
+        As step count <em>n</em> increases, the average score <em>S<sub>n</sub>/n</em> collapses onto the theoretical expected value E[X<sub>i</sub>]. The variance scales as &sigma;<sup>2</sup>/n, tending to zero. In a cybersecurity context, this means that as an attacker targets a large number of systems, their overall empirical success rate stabilizes precisely at their intrinsic probability of compromise.
       </p>
 
       <h3>2. Central Limit Theorem (CLT) &amp; The Scaling Factor &radic;n</h3>
       <p>
         Dividing the total score by <em>n</em> causes the variance to shrink to zero, while looking at the unscaled total score <em>S<sub>n</sub></em> causes the variance to grow linearly to infinity. 
-        The scaling factor <strong>1/&radic;n</strong> is the precise mathematical normalization that stabilizes the variance at &sigma;<sup>2</sup> = 1. Under Rademacher increments, the discrete binomial distribution of <em>S<sub>n</sub>/&radic;n</em> converges rapidly to a standard Gaussian distribution &mathcal;N}(0, 1).
+        The scaling factor <strong>1/&radic;n</strong> is the precise mathematical normalization that stabilizes the variance at &sigma;<sup>2</sup> = 1. Under Rademacher increments, the discrete binomial distribution of <em>S<sub>n</sub>/&radic;n</em> converges rapidly to a standard Gaussian distribution N(0, 1).
       </p>
 
       <h3>3. Impact of System Size (n) and Number of Attackers (m)</h3>
