@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Homework 3 - Statistics 2026</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" href="../statistics.ico">
+  <script src="homework3.js" defer></script>
+</head>
+<body>
+  <main class="hw-container">
+    <a href="../index.html" class="btn-back">&larr; Back to Home</a>
+    <h1>Statistics</h1>
+    <p>Homework 3: Stochastic Penetration Processes — LLN, CLT, and Penetration Score Normalization</p>
+
+    <!-- Section 1: Mathematical Foundations -->
+    <section class="section-box">
+      <h2>1. Theoretical Foundations &amp; Stochastic Modeling</h2>
+      <p>
+        We model a penetration attack against <em>n</em> systems (or steps) by <em>m</em> independent attackers using a sequence of independent and identically distributed (i.i.d.) random variables X<sub>1</sub>, X<sub>2</sub>, ..., X<sub>n</sub>.
+      </p>
+      <ul>
+        <li>
+          <strong>Bernoulli Model:</strong> X<sub>i</sub> &isin; {0, 1} with P(X<sub>i</sub> = 1) = p. Represents success (penetration) or failure at each step.
+          <br>Mean &mathbb;[X<sub>i</sub>] = p, Variance Var(X<sub>i</sub>) = p(1 - p).
+        </li>
+        <li>
+          <strong>Rademacher Model:</strong> X<sub>i</sub> &isin; {-1, +1} with P(X<sub>i</sub> = +1) = P(X<sub>i</sub> = -1) = 1/2. Represents a symmetric zero-mean process.
+          <br>Mean &mathbb;[X<sub>i</sub>] = 0, Variance Var(X<sub>i</sub>) = 1.
+        </li>
+      </ul>
+
+      <h3>Normalized Quantities &amp; Limit Theorems</h3>
+      <p>We evaluate three distinct transformations of the cumulative score sequence:</p>
+      <div class="math-block">
+        1. Total Score: S<sub>n</sub> = &sum; X<sub>i</sub> &nbsp;&nbsp;|&nbsp;&nbsp; Var(S<sub>n</sub>) = n &middot; &sigma;<sup>2</sup> &rarr; &infin;
+      </div>
+      <div class="math-block">
+        2. Average Score: S<sub>n</sub> / n = (1/n) &sum; X<sub>i</sub> &nbsp;&nbsp;|&nbsp;&nbsp; Var(S<sub>n</sub>/n) = &sigma;<sup>2</sup> / n &rarr; 0 (Law of Large Numbers)
+      </div>
+      <div class="math-block">
+        3. Normalized Score: S<sub>n</sub> / &radic;n = (1/&radic;n) &sum; X<sub>i</sub> &nbsp;&nbsp;|&nbsp;&nbsp; Var(S<sub>n</sub>/&radic;n) = &sigma;<sup>2</sup> &rightarrow; &mathcal;N}(0, 1) (Central Limit Theorem)
+      </div>
+    </section>
+
+    <!-- Section 2: Interactive Simulation -->
+    <section class="section-box">
+      <h2>2. Interactive Stochastic Trajectories &amp; Distribution Simulator</h2>
+      <p>Simulate <em>m</em> attacker trajectories over <em>n</em> steps and observe trajectory convergence and distribution shapes.</p>
+
+      <div class="calc-controls">
+        <label for="numSteps">Steps (n):</label>
+        <input type="number" id="numSteps" value="100" min="10" max="1000">
+
+        <label for="numAttackers">Attackers (m):</label>
+        <input type="number" id="numAttackers" value="50" min="5" max="500">
+
+        <label for="modelType">Model:</label>
+        <select id="modelType">
+          <option value="rademacher">Rademacher {-1, +1}</option>
+          <option value="bernoulli">Bernoulli {0, 1} (p=0.5)</option>
+        </select>
+
+        <label for="scoreType">Quantity:</label>
+        <select id="scoreType">
+          <option value="total">Total Score (S_n)</option>
+          <option value="average">Average Score (S_n / n)</option>
+          <option value="normalized">Normalized (S_n / sqrt(n))</option>
+        </select>
+
+        <button id="runSimBtn">Run Simulation</button>
+      </div>
+
+      <div class="grid-container" style="margin-top: 20px;">
+        <div>
+          <h3>Sample Trajectories Across n Steps</h3>
+          <canvas id="trajectoryCanvas" width="400" height="300"></canvas>
+        </div>
+        <div>
+          <h3>Final State Distribution at Step n</h3>
+          <canvas id="histogramCanvas" width="400" height="300"></canvas>
+        </div>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <h3>Empirical vs. Theoretical Summary Statistics</h3>
+        <div class="table-wrapper">
+          <table class="log-table" id="statsTable">
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th>Theoretical Value</th>
+                <th>Empirical Value (m Attackers)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Analytical Discussion -->
+    <section class="section-box">
+      <h2>3. Comparative Analysis &amp; Cybersecurity Interpretation</h2>
+      
+      <h3>1. Law of Large Numbers (LLN) &amp; Average Score Behavior</h3>
+      <p>
+        As step count <em>n</em> increases, the average score <em>S<sub>n</sub>/n</em> collapses onto the theoretical expected value &mathbb;[X<sub>i</sub>]. The variance scales as &sigma;<sup>2</sup>/n, tending to zero. In a cybersecurity context, this means that as an attacker targets a large number of systems, their overall empirical success rate stabilizes precisely at their intrinsic probability of compromise.
+      </p>
+
+      <h3>2. Central Limit Theorem (CLT) &amp; The Scaling Factor &radic;n</h3>
+      <p>
+        Dividing the total score by <em>n</em> causes the variance to shrink to zero, while looking at the unscaled total score <em>S<sub>n</sub></em> causes the variance to grow linearly to infinity. 
+        The scaling factor <strong>1/&radic;n</strong> is the precise mathematical normalization that stabilizes the variance at &sigma;<sup>2</sup> = 1. Under Rademacher increments, the discrete binomial distribution of <em>S<sub>n</sub>/&radic;n</em> converges rapidly to a standard Gaussian distribution &mathcal;N}(0, 1).
+      </p>
+
+      <h3>3. Impact of System Size (n) and Number of Attackers (m)</h3>
+      <ul>
+        <li>
+          <strong>System Size (n):</strong> Controls the convergence rate toward asymptotic limits. Larger <em>n</em> smooths individual sample paths and sharpens the bell-curve alignment for the normalized score.
+        </li>
+        <li>
+          <strong>Number of Attackers (m):</strong> Controls the sample size of the empirical distribution. A larger <em>m</em> populates the final histogram smoothly, verifying LLN and CLT across a population of threat actors.
+        </li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    © 2026 Alessandro Bianco (matr. 2094385) - Statistics
+  </footer>
+
+</body>
+</html>
