@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Homework 4 - Statistics 2026</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" href="../statistics.ico">
+  <script src="homework4.js" defer></script>
+</head>
+<body>
+  <main class="hw-container">
+    <a href="../index.html" class="btn-back">&larr; Back to Home</a>
+    <h1>Statistics</h1>
+    <p>Homework 4: Welford’s Algorithm, Sampling Distributions, and Inferential Statistics</p>
+
+    <!-- ======================================================= -->
+    <!-- MACRO SECTION 1: PART 4.1 - WELFORD'S FORMULAS         -->
+    <!-- ======================================================= -->
+    <section class="section-box" style="border-left: 4px solid #2563eb;">
+      <h2>PART 4.1 — Welford’s Recurrence Formulas for Mean and Variance</h2>
+      
+      <h3>1. Mathematical Derivation</h3>
+      <p>
+        Computing variance using the naive formula Var(X) = E[X<sup>2</sup>] - (E[X])<sup>2</sup> suffers from catastrophic numerical cancellation when dealing with large datasets or small variances. Welford's algorithm updates the mean x&#772;<sub>k</sub> and sum of squared differences M<sub>2,k</sub> online in a single pass:
+      </p>
+      <div class="math-block">
+        M<sub>2,k</sub> = &sum;<sub>i=1..k</sub> (x<sub>i</sub> - x&#772;<sub>k</sub>)<sup>2</sup>
+      </div>
+      <p>By expanding M<sub>2,k</sub> - M<sub>2,k-1</sub> and substituting x&#772;<sub>k</sub> = x&#772;<sub>k-1</sub> + (x<sub>k</sub> - x&#772;<sub>k-1</sub>) / k, we derive the recurrence relation:</p>
+      <div class="math-block">
+        &delta; = x<sub>k</sub> - x&#772;<sub>k-1</sub><br>
+        x&#772;<sub>k</sub> = x&#772;<sub>k-1</sub> + &delta; / k<br>
+        &delta;<sub>2</sub> = x<sub>k</sub> - x&#772;<sub>k</sub><br>
+        M<sub>2,k</sub> = M<sub>2,k-1</sub> + &delta; &middot; &delta;<sub>2</sub>
+      </div>
+      <p>The sample variance is then: s<sup>2</sup> = M<sub>2,k</sub> / (k - 1).</p>
+
+      <h3>2. Core JavaScript Logic (3-Line Core Update)</h3>
+      <div style="background: #1e293b; color: #f8fafc; padding: 14px; border-radius: 6px; font-family: monospace; overflow-x: auto;">
+        <span style="color: #64748b;">// Core Welford update logic per incoming data point x</span><br>
+        <span style="color: #f1f5f9;">const delta = x - mean;</span><br>
+        <span style="color: #f1f5f9;">mean += delta / count;</span><br>
+        <span style="color: #f1f5f9;">M2 += delta * (x - mean);</span>
+      </div>
+    </section>
+
+    <!-- ======================================================= -->
+    <!-- MACRO SECTION 2: PART 4.2 - SAMPLING MEAN & VARIANCE    -->
+    <!-- ======================================================= -->
+    <section class="section-box" style="border-left: 4px solid #16a34a; margin-top: 30px;">
+      <h2>PART 4.2 — Sampling Mean and Variance Simulation (m Hackers, n Systems)</h2>
+      <p>
+        Each hacker attempts to penetrate <em>n</em> systems. Each penetration attempt yields a score X &isin; [0, 10] drawn from a Uniform distribution U(0, 10).
+      </p>
+      <ul>
+        <li><strong>Theoretical Mean (&mu;):</strong> 5.0000</li>
+        <li><strong>Theoretical Variance (&sigma;<sup>2</sup>):</strong> 100 / 12 &approx; 8.3333</li>
+      </ul>
+
+      <div class="calc-controls" style="margin-top: 15px;">
+        <label for="numSystems">Systems (n):</label>
+        <input type="number" id="numSystems" value="100" min="5" max="2000">
+
+        <label for="numHackers">Hackers (m):</label>
+        <input type="number" id="numHackers" value="100" min="10" max="1000">
+
+        <button id="runWelfordSimBtn">Run Experiment</button>
+      </div>
+
+      <div class="grid-container" style="margin-top: 20px;">
+        <div>
+          <h3>Hacker Trajectories (Welford Running Means)</h3>
+          <canvas id="welfordTrajectoryCanvas" width="400" height="300"></canvas>
+        </div>
+        <div>
+          <h3>Distribution of Hacker Sample Means</h3>
+          <canvas id="welfordHistCanvas" width="400" height="300"></canvas>
+        </div>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <h3>Comparison of Empirical Averages vs. Theoretical Parameters</h3>
+        <div class="table-wrapper">
+          <table class="log-table" id="welfordTable">
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Theoretical Value</th>
+                <th>Average Across m Hackers</th>
+                <th>Bias / Error</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <h3>Statistical Interpretations &amp; Inferential Insights</h3>
+        <h4>1. Unbiased Estimators in Inferential Statistics</h4>
+        <p>
+          The average of the <em>m</em> sampling means aligns with &mu;, and the average of the <em>m</em> sample variances aligns with &sigma;<sup>2</sup>. This proves empirically that the sample mean X&#772; and sample variance s<sup>2</sup> (with Bessel's correction n-1) are <strong>unbiased estimators</strong> of the population parameters.
+        </p>
+
+        <h4>2. Impact of System Count (n) on Variability</h4>
+        <p>
+          Increasing <em>n</em> drastically reduces the spread (variance) of the sample means across the hackers, scaling proportionally to &sigma;<sup>2</sup>/n. As <em>n</em> &rarr; &infin;, individual hacker trajectories converge tightly to &mu;, demonstrating the Law of Large Numbers.
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    © 2026 Alessandro Bianco (matr. 2094385) - Statistics
+  </footer>
+
+</body>
+</html>
