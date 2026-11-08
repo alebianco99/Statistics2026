@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Homework 5 - Statistics 2026</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" href="../statistics.ico">
+  <script src="homework5.js" defer></script>
+</head>
+<body>
+  <main class="hw-container">
+    <a href="../index.html" class="btn-back">&larr; Back to Home</a>
+    <h1>Statistics</h1>
+    <p>Homework 5: Numerical Integration (Riemann vs Lebesgue) and Standard Normal CDF Computation</p>
+
+    <!-- ======================================================= -->
+    <!-- MACRO SECTION 1: EXERCISE 1 - RIEMANN VS LEBESGUE     -->
+    <!-- ======================================================= -->
+    <section class="section-box" style="border-left: 4px solid #2563eb;">
+      <h2>EXERCISE 1 — Riemann vs. Lebesgue Numerical Integration</h2>
+      
+      <h3>1. Theoretical Foundations</h3>
+      <p>
+        The <strong>Riemann integral</strong> partitions the <em>domain</em> [a, b] into subintervals &Delta;x<sub>i</sub> and sums the areas of vertical rectangles f(x<sub>i</sub><sup>*</sup>) &Delta;x<sub>i</sub>. 
+        In contrast, the <strong>Lebesgue integral</strong> partitions the <em>range</em> [y<sub>min</sub>, y<sub>max</sub>] into measurable subsets and measures the size (preimage length) of domain regions mapped into each vertical strip:
+      </p>
+      <div class="math-block">
+        Riemann: &int;<sub>a</sub><sup>b</sup> f(x) dx &approx; &sum;<sub>i=1..N</sub> f(x<sub>i</sub><sup>*</sup>) &Delta;x<sub>i</sub>
+      </div>
+      <div class="math-block">
+        Lebesgue: &int;<sub>[a,b]</sub> f d&mu; &approx; &sum;<sub>j=1..M</sub> y<sub>j</sub> &middot; &mu;({x &isin; [a,b] | y<sub>j</sub> &le; f(x) &lt; y<sub>j+1</sub>})
+      </div>
+
+      <div class="calc-controls" style="margin-top: 15px;">
+        <label for="functionSelect">Select Function f(x):</label>
+        <select id="functionSelect">
+          <option value="sin">f(x) = sin(x) on [0, &pi;]</option>
+          <option value="sq">f(x) = x^2 on [0, 1]</option>
+          <option value="step">f(x) = Step (1 if x >= 0.5, 0 if x < 0.5) on [0, 1]</option>
+          <option value="invsqrt">f(x) = 1 / sqrt(x) on (0, 1]</option>
+          <option value="dirichlet">Pathological: Dirichlet (1 if x in Q, 0 if x in R\Q)</option>
+          <option value="thomae">Pathological: Thomae (1/q if x=p/q, 0 if x in R\Q)</option>
+        </select>
+
+        <label for="riemannSubdiv">Domain Subdivisions (N):</label>
+        <input type="number" id="riemannSubdiv" value="500" min="10" max="10000">
+
+        <label for="lebesgueSubdiv">Range Subdivisions (M):</label>
+        <input type="number" id="lebesgueSubdiv" value="500" min="10" max="10000">
+
+        <button id="runIntegrationBtn">Compute Integrals</button>
+      </div>
+
+      <div class="table-wrapper" style="margin-top: 20px;">
+        <table class="log-table" id="integrationTable">
+          <thead>
+            <tr>
+              <th>Approach</th>
+              <th>Partition Target</th>
+              <th>Numerical Integral</th>
+              <th>Theoretical Exact Integral</th>
+              <th>Absolute Error</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <h3>Comparative Analysis &amp; Pathological Functions</h3>
+        <p>
+          For continuous and piecewise continuous functions, both Riemann and Lebesgue approaches converge to identical theoretical values. 
+          However, for <strong>pathological functions</strong> like the <em>Dirichlet function</em>:
+        </p>
+        <ul>
+          <li><strong>Riemann Integration Fails:</strong> Any partition contains both rational and irrational numbers. The upper Riemann sum equals 1 while the lower Riemann sum equals 0. Thus, the Riemann integral does not exist.</li>
+          <li><strong>Lebesgue Integration Succeeds:</strong> Because the set of rational numbers Q has Lebesgue measure zero (&mu;(Q) = 0) and irrationals have measure 1 (&mu;(R\Q) = 1), the Lebesgue integral evaluates cleanly to 0 &middot; 1 + 1 &middot; 0 = 0.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ======================================================= -->
+    <!-- MACRO SECTION 2: EXERCISE 2 - NORMAL CDF COMPUTATION   -->
+    <!-- ======================================================= -->
+    <section class="section-box" style="border-left: 4px solid #16a34a; margin-top: 30px;">
+      <h2>EXERCISE 2 — Numerical Computation of the Standard Normal CDF</h2>
+      
+      <h3>1. Liouville’s Theorem &amp; The Error Function (erf)</h3>
+      <p>
+        The Cumulative Distribution Function (CDF) of the standard normal distribution &Phi;(z) is defined as:
+      </p>
+      <div class="math-block">
+        &Phi;(z) = (1 / &radic;(2&pi;)) &int;<sub>-&infin;</sub><sup>z</sup> e<sup>-t<sup>2</sup>/2</sup> dt
+      </div>
+      <p>
+        By <strong>Liouville’s Theorem</strong> (and the Risch algorithm), the antiderivative of e<sup>-t<sup>2</sup>/2</sup> cannot be expressed in terms of a finite combination of elementary functions (arithmetic operations, powers, exponentials, logarithms, or trigonometric functions). 
+        To provide an exact mathematical representation, special functions such as the <strong>Error Function (erf)</strong> are introduced:
+      </p>
+      <div class="math-block">
+        erf(x) = (2 / &radic;&pi;) &int;<sub>0</sub><sup>x</sup> e<sup>-t<sup>2</sup></sup> dt &nbsp;&nbsp;&rArr;&nbsp;&nbsp; &Phi;(z) = (1/2) [ 1 + erf(z / &radic;2) ]
+      </div>
+
+      <h3>2. Interactive Numerical Computation</h3>
+      <p>Evaluate &Phi;(z) using three distinct numerical techniques and compare them against a reference value:</p>
+
+      <div class="calc-controls" style="margin-top: 15px;">
+        <label for="evalZ">Evaluation Point (z):</label>
+        <input type="number" id="evalZ" value="1.96" step="0.01">
+
+        <label for="quadSteps">Integration Steps (N):</label>
+        <input type="number" id="quadSteps" value="1000" min="10" max="10000">
+
+        <button id="runCdfBtn">Compute &Phi;(z)</button>
+      </div>
+
+      <div class="table-wrapper" style="margin-top: 20px;">
+        <table class="log-table" id="cdfTable">
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>Formula / Primitive</th>
+              <th>Computed &Phi;(z)</th>
+              <th>Absolute Error vs. Reference</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <h3>Numerical Efficiency &amp; Practical Considerations</h3>
+        <ul>
+          <li><strong>Simpson's Rule (Quadrature):</strong> Highly accurate for small z, but requires truncated lower integration bounds (e.g., -10) and incurs computational overhead from repeated exponential evaluations.</li>
+          <li><strong>Power Series Expansion of erf(z):</strong> Converges rapidly for small |z| (|z| &lt; 2.5), but requires many terms for larger z due to floating-point truncation and slow tail convergence.</li>
+          <li><strong>Rational Polynomial Approximation (Abramowitz &amp; Stegun / Hart):</strong> Computes &Phi;(z) in O(1) time using minimal multiplications, achieving an accuracy of 10<sup>-7</sup> to 10<sup>-15</sup> across all real numbers z. This is the industry-standard approach used in low-level math libraries.</li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    © 2026 Alessandro Bianco (matr. 2094385) - Statistics
+  </footer>
+
+</body>
+</html>
