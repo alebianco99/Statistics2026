@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Homework 6 - Statistics 2026</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" href="../statistics.ico">
+  <script src="homework6.js" defer></script>
+</head>
+<body>
+  <main class="hw-container">
+    <a href="../index.html" class="btn-back">&larr; Back to Home</a>
+    <h1>Statistics</h1>
+    <p>Homework 6: Statistical Independence, Contingency Tables, Chi-Square Test and Causality</p>
+
+    <!-- Section 1: Theoretical Concepts -->
+    <section class="section-box">
+      <h2>1. Theoretical Foundations - Independence in Probability and Statistics</h2>
+      <p>
+        In <strong>probability theory</strong>, two random variables <em>X</em> and <em>F</em> are defined as independent if their joint probability distribution factorizes into the product of their marginal distributions for all outcomes:
+      </p>
+      <div class="math-block">
+        P(X = x<sub>i</sub>, F = f<sub>j</sub>) = P(X = x<sub>i</sub>) &middot; P(F = f<sub>j</sub>) &nbsp;&nbsp;&hArr;&nbsp;&nbsp; P(F = f<sub>j</sub> | X = x<sub>i</sub>) = P(F = f<sub>j</sub>)
+      </div>
+      <p>
+        In <strong>applied statistics</strong>, we observe finite samples of size <em>N</em> rather than exact theoretical probabilities. Due to random sampling variability, empirical joint relative frequencies (O<sub>ij</sub> / N) rarely match the exact product of empirical marginals (R<sub>i</sub> &middot; C<sub>j</sub> / N<sup>2</sup>). Therefore, we test the null hypothesis of independence (H<sub>0</sub>) by comparing observed counts O<sub>ij</sub> against expected counts E<sub>ij</sub> using Pearson's Chi-Square statistic:
+      </p>
+      <div class="math-block">
+        E<sub>ij</sub> = (R<sub>i</sub> &middot; C<sub>j</sub>) / N &nbsp;&nbsp;|&nbsp;&nbsp; &chi;<sup>2</sup> = &sum;<sub>i,j</sub> (O<sub>ij</sub> - E<sub>ij</sub>)<sup>2</sup> / E<sub>ij</sub> &nbsp;&nbsp;|&nbsp;&nbsp; df = (r - 1)(c - 1)
+      </div>
+    </section>
+
+    <!-- Section 2: Interactive Bivariate Dataset Analyzer -->
+    <section class="section-box">
+      <h2>2. Interactive Contingency Table and Chi-Square Analyzer</h2>
+      <p>
+        Select a preset bivariate dataset (X, F) or enter custom comma-separated pairs (one observation per line) to compute marginal frequencies, conditional probabilities, expected counts, and the Chi-Square test.
+      </p>
+
+      <div class="calc-controls" style="margin-top: 15px;">
+        <label for="datasetPreset">Preset Dataset:</label>
+        <select id="datasetPreset">
+          <option value="dependent">Cybersecurity: Attack Vector (X) vs Breach Outcome (F) [Dependent]</option>
+          <option value="independent">Infrastructure: Server OS (X) vs Power Supply Failure (F) [Independent]</option>
+          <option value="spurious">Observational: Ice Cream Sales (X) vs Network Outages (F) [Spurious Association]</option>
+        </select>
+        <button id="analyzeBtn">Analyze Dataset</button>
+      </div>
+
+      <div style="margin-top: 15px;">
+        <label for="bivariateInput"><strong>Bivariate Dataset (X, F) - Format: X_value, F_value</strong></label>
+        <textarea id="bivariateInput" rows="6" style="width: 100%; padding: 8px; font-family: monospace;"></textarea>
+      </div>
+
+      <!-- Test Result Banner -->
+      <div id="testResultBox" style="margin-top: 20px; padding: 15px; border-radius: 6px; background: #f8fafc; border: 1px solid #cbd5e1;">
+        <h3 style="margin-top: 0;">Chi-Square Test of Independence Summary</h3>
+        <p style="margin: 5px 0;"><strong>Sample Size (N):</strong> <span id="statN">-</span> | <strong>Degrees of Freedom (df):</strong> <span id="statDf">-</span></p>
+        <p style="margin: 5px 0;"><strong>Chi-Square Statistic (&chi;<sup>2</sup>):</strong> <span id="statChi2" style="color: #2563eb; font-weight: bold;">-</span> | <strong>p-value:</strong> <span id="statPVal" style="color: #2563eb; font-weight: bold;">-</span></p>
+        <p style="margin: 8px 0 0 0;"><strong>Decision (&alpha; = 0.05):</strong> <span id="statConclusion" style="font-weight: bold;">-</span></p>
+      </div>
+
+      <!-- Table 1: Observed Contingency Table & Marginals -->
+      <div style="margin-top: 20px;">
+        <h3>A. Observed Contingency Table (O<sub>ij</sub>) and Marginal Frequencies</h3>
+        <div class="table-wrapper" id="observedTableContainer"></div>
+      </div>
+
+      <!-- Table 2: Conditional Frequencies P(F | X) -->
+      <div style="margin-top: 20px;">
+        <h3>B. Conditional Relative Frequencies P(F = f<sub>j</sub> | X = x<sub>i</sub>)</h3>
+        <p>Under statistical independence, every row should exhibit approximately the same conditional distribution as the bottom Marginal P(F) row.</p>
+        <div class="table-wrapper" id="conditionalTableContainer"></div>
+      </div>
+
+      <!-- Table 3: Expected Frequencies under Independence -->
+      <div style="margin-top: 20px;">
+        <h3>C. Expected Frequencies Under Independence (E<sub>ij</sub> = R<sub>i</sub> &middot; C<sub>j</sub> / N)</h3>
+        <div class="table-wrapper" id="expectedTableContainer"></div>
+      </div>
+    </section>
+
+    <!-- Section 3: Interpretation and Causality Discussion -->
+    <section class="section-box">
+      <h2>3. Interpretation of Results - Association vs. Causality</h2>
+      
+      <h3>1. Interpreting Statistical Independence vs. Dependence</h3>
+      <p>
+        When the computed <strong>&chi;<sup>2</sup></strong> statistic is large and the corresponding <strong>p-value &lt; 0.05</strong>, we reject the null hypothesis H<sub>0</sub>. This indicates that the conditional distribution of <em>F</em> changes significantly depending on the state of <em>X</em>, proving <strong>statistical dependence (association)</strong>. Conversely, a small &chi;<sup>2</sup> value (p-value &ge; 0.05) indicates that observed deviations from E<sub>ij</sub> are consistent with random sampling noise, supporting statistical independence.
+      </p>
+
+      <h3>2. Distinguishing Statistical Association from Causality</h3>
+      <p>
+        Establishing statistical dependence between <em>X</em> and <em>F</em> does <strong>not</strong> imply that <em>X</em> causes <em>F</em> (or vice versa). Correlation and contingency table associations only measure co-occurrence in data. Causal inference cannot be deduced from observational frequency tables alone due to:
+      </p>
+      <ul>
+        <li>
+          <strong>Confounding Variables (Common Cause):</strong> A hidden third variable <em>Z</em> may simultaneously influence both <em>X</em> and <em>F</em>. For example, high ambient temperature (<em>Z</em>) increases both ice cream sales (<em>X</em>) and cooling system thermal stress causing server outages (<em>F</em>), creating a strong statistical association without any direct causal link between <em>X</em> and <em>F</em>.
+        </li>
+        <li>
+          <strong>Reverse Causality:</strong> A significant &chi;<sup>2</sup> test is symmetric with respect to <em>X</em> and <em>F</em>; it cannot determine whether <em>X &rarr; F</em> or <em>F &rarr; X</em>.
+        </li>
+        <li>
+          <strong>Need for Experimental Control:</strong> Proving causality requires randomized controlled experiments or formal causal inference frameworks (such as do-calculus and directed acyclic graphs) to isolate interventions from observational bias.
+        </li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    &copy; 2026 Alessandro Bianco (matr. 2094385) - Statistics
+  </footer>
+
+</body>
+</html>
